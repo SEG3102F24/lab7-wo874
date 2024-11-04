@@ -1,30 +1,32 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
+import { BooksService } from '../service/books.service';
+import { Author } from '../model/book'; 
 
-import { AdminComponent } from './admin.component';
-import {RouterTestingModule} from "@angular/router/testing";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-
-describe('AdminComponent', () => {
-  let component: AdminComponent;
-  let fixture: ComponentFixture<AdminComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [RouterTestingModule, FormsModule, ReactiveFormsModule, AdminComponent],
-    providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+@Component({
+  selector: 'app-admin', 
+  templateUrl: './admin.component.html', 
+  styleUrls: ['./admin.component.css'],
 })
-    .compileComponents();
-  });
+export class AdminComponent {
+  authorId: number | null = null;
+  author: Author | null = null;
+  message: string | null = null;
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AdminComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+  constructor(private booksService: BooksService) {}
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  fetchAuthor() {
+    if (this.authorId) {
+      this.booksService.getAuthor(this.authorId).subscribe({
+        next: (data: Author) => {
+          this.author = data;
+          this.message = null;
+        },
+        error: () => {
+          this.author = null;
+          this.message = 'Author not found';
+        }
+      });
+    }
+  }
+}
+
